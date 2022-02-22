@@ -1,10 +1,18 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
+
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
+
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
-
 app.set("view engine", "ejs");
+
+
+
+
 
 // If the server is live, this Database will keep on adding up.
 const urlDatabase = {
@@ -17,16 +25,49 @@ const generateRandomString = function (length = 6) {
   return Math.random().toString(20).substr(2, length);
 };
 
-// List of Urls in the data base object
+// // List of Urls in the data base object
+// app.get("/urls", (req, res) => {
+//   const templateVars = { urls: urlDatabase }; // uses the urlDatabase above.
+//   res.render("urls_index", templateVars); //for Express, it searches in the view file with .ejs automatically
+// });
+
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase }; // uses the urlDatabase above.
-  res.render("urls_index", templateVars); //for Express, it searches in the view file with .ejs automatically
-});
+  const templateVars = {
+    urls: urlDatabase,
+    username: req.cookies.username
+  };
+  res.render("urls_index", templateVars); // for Express, it searches in the "views" file with .ejs automatically.
+})
+
+
 
 //url new page ----> This has ot be defined before /urls/:id. -------> Routes should be ordfered from Most specific to least.
 app.get("/urls/new", (req, res) => {
+  const templateVars = {
+    username: req.cookies.username
+  };
   res.render("urls_new");
 });
+
+ // Cookie /POST /login
+app.post("/login", (req, res) => {
+  const username = req.body.username;
+  console.log(req.body);
+
+  res.cookie("username", username); // (name, value)
+  res.redirect("/urls");            // redirects back to /urls page
+});
+
+// Cookie /POST /logout
+app.post("/logout", (req, res) => {
+  const username = req.body.username;
+
+  res.clearCookie("username", username);
+  res.redirect("/urls");
+});
+
+
+
 
 // new url redirect page
 app.post("/urls", (req, res) => {
@@ -43,7 +84,9 @@ app.post("/urls", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
-    shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL],
+    shortURL: req.params.shortURL, 
+    longURL: urlDatabase[req.params.shortURL],
+    username: req.cookies.username
   };
   res.render("urls_show", templateVars);
 });
