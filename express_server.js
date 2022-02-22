@@ -25,11 +25,8 @@ const generateRandomString = function (length = 6) {
   return Math.random().toString(20).substr(2, length);
 };
 
-// // List of Urls in the data base object
-// app.get("/urls", (req, res) => {
-//   const templateVars = { urls: urlDatabase }; // uses the urlDatabase above.
-//   res.render("urls_index", templateVars); //for Express, it searches in the view file with .ejs automatically
-// });
+
+
 
 app.get("/urls", (req, res) => {
   const templateVars = {
@@ -46,10 +43,10 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     username: req.cookies.username
   };
-  res.render("urls_new");
+  res.render("urls_new", templateVars);
 });
 
- // Cookie /POST /login
+// Cookie /POST /login
 app.post("/login", (req, res) => {
   const username = req.body.username;
   console.log(req.body);
@@ -57,6 +54,10 @@ app.post("/login", (req, res) => {
   res.cookie("username", username); // (name, value)
   res.redirect("/urls");            // redirects back to /urls page
 });
+
+
+
+
 
 // Cookie /POST /logout
 app.post("/logout", (req, res) => {
@@ -128,17 +129,16 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-
-
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-
-
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
+
+
+
 
 
 // app listening on Port
