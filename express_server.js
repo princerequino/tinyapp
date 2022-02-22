@@ -58,6 +58,16 @@ app.get("/u/:shortURL", (req, res) => {
   }
 });
 
+// Edit / POST /urls/:shortURL
+app.post("/urls/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const newLongURL = req.body.updateURL; // body parser in express //this creates a new value 
+  //take whatever is put in the form (updateURL) and changes the value of urlDatabase[shortURL] after.
+  urlDatabase[shortURL] = newLongURL;
+  res.redirect("/urls");
+});
+
+
 // DELETE / POST /urls/:shortURL/delete
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
@@ -65,6 +75,8 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 // After deletion, redirect back to urls_index page (/urls)
   res.redirect('/urls');
 });
+
+
 
 
 

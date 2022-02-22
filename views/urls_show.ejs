@@ -25,6 +25,13 @@
       <div class="card-body">
         <h5 class="card-title">TinyURL for: <%= longURL %></h5>
         <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
+              <!-- Edit Long URL w/ POST-->
+      <h3>Edit</h3>
+      <form method="POST" action="/urls/<%= shortURL %>">
+        <label for="update"><h5>New URL: </h5></label>
+        <input type="text" name = "updateURL" value="<%= longURL %>"> <!-- name has to match the actual object key--> <!-- -->
+        <button type = "submit" class="btn btn-primary">Submit</button>
+      </form>
       </div>
     <div class="card-footer text-muted"></div>
   </div>
