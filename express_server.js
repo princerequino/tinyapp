@@ -83,6 +83,10 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");
 });
 
+
+
+
+
 //                                               ********** / URL / GET /urls \ **********
 app.get("/urls", (req, res) => {
   const templateVars = {
@@ -110,17 +114,36 @@ app.get("/urls/new", (req, res) => {
 });
 
 
+//                                            ********** / LOGIN ENDPOINT / GET /login \ **********
+app.get("/login", (req, res) => {
+  const templateVars = {
+    "user_id": req.cookies.user_id,
+    users: users
+  };
 
-//                                            ********** / COOKIE / POST /login \ **********
-app.post("/login", (req, res) => {
-  const username = req.body.username;
-
-  res.cookie("user_id", templateVars); // (name, value)
-  res.redirect("/urls");            // redirects back to /urls page
+  res.render("login_index", templateVars);
 });
 
 
-//                                            ********** / COOKIE / POST /logout \ **********
+//                                            ********** / LOGIN / COOKIE / POST /login \ **********
+app.post("/login", (req, res) => {
+  if (req.body.email === '' || req.body.password === '') {
+    res.status(400);
+    res.send('Please fill in the Email and Password');
+  }
+  for (const user in users) {
+    if (req.body.email === users[user].email && req.body.password === users[user].password) {
+      res.cookie("user_id", users[user].id);
+      return res.redirect("/urls");
+    }
+  }
+  res.status(403); // CAN'T BE ELSE STATEMENT
+  res.send('Wrong email/password! Try again');
+});
+
+
+
+//                                            ********** / LOGOUT / COOKIE / POST /logout \ **********
 app.post("/logout", (req, res) => {
 const templateVars = {
   "user_id": req.body.user_id,
