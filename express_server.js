@@ -1,12 +1,13 @@
 const express = require("express");
+const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 8080; // default port 8080
 
-const cookieParser = require('cookie-parser');
+
+
+//                                                ************* Middlewares *************
 app.use(cookieParser());
-
-
-const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 
@@ -14,12 +15,12 @@ app.set("view engine", "ejs");
 
 
 
-// If the server is live, this Database will keep on adding up.
+//                                               **********    URL Database    **********
 const urlDatabase = {
   'b2xVn2': "http://www.lighthouselabs.ca",
   '9sm5xK': "http://www.google.com"
 };
-
+//                                               **********    User Database     **********
 const users = { 
   "userRandomID": {
     id: "userRandomID", 
@@ -35,13 +36,13 @@ const users = {
 
 
 
-// Create random Strings
+//                                            **********    Create Random Strings     **********
 const generateRandomString = function (length = 6) {
   return Math.random().toString(20).substr(2, length);
 };
 
 
-//********/ Register / GET /register
+//                                            ********** / Register / GET /register \ **********
 app.get("/register", (req, res) => {
   const templateVars = {
     // username: req.cookies.username
@@ -53,7 +54,7 @@ app.get("/register", (req, res) => {
 });
 
 
-//********** / Register / POST /register
+//                                            ********** / Register / POST /register \ **********
 
 app.post("/register", (req, res) => {
   if (req.body.email === '' || req.body.password === '') {
@@ -82,7 +83,7 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");
 });
 
-
+//                                               ********** / URL / GET /urls \ **********
 app.get("/urls", (req, res) => {
   const templateVars = {
     urls: urlDatabase,
@@ -90,13 +91,15 @@ app.get("/urls", (req, res) => {
     "user_id": req.cookies.user_id,
     "users": users
   };
-  res.render("urls_index", templateVars); // for Express, it searches in the "views" file with .ejs automatically.
+  res.render("urls_index", templateVars);
 })
 
 
 
-
-//url new page ----> This has ot be defined before /urls/:id. -------> Routes should be ordfered from Most specific to least.
+//                                            ********** / URL / GET /urls/new \ **********
+//                                            url new page ----> This has to be defined 
+//                                        before /urls/:id. -------> Routes should be ordered 
+//                                                   from MOST specific to least.
 app.get("/urls/new", (req, res) => {
   const templateVars = {
     // username: req.cookies.username
@@ -108,8 +111,7 @@ app.get("/urls/new", (req, res) => {
 
 
 
-
-// ********Cookie /POST /login
+//                                            ********** / COOKIE / POST /login \ **********
 app.post("/login", (req, res) => {
   const username = req.body.username;
 
@@ -117,7 +119,8 @@ app.post("/login", (req, res) => {
   res.redirect("/urls");            // redirects back to /urls page
 });
 
-// *******Cookie /POST /logout
+
+//                                            ********** / COOKIE / POST /logout \ **********
 app.post("/logout", (req, res) => {
 const templateVars = {
   "user_id": req.body.user_id,
@@ -137,8 +140,8 @@ const templateVars = {
 
 
 
-
-// new url redirect page
+//                                            ********** / URL / POST /urls \ **********   
+//                                                     (new url redirect page)
 app.post("/urls", (req, res) => {
   console.log(req.body); 
 
@@ -148,12 +151,12 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${newShortURL}`);
 });
 
-// req.params.shortURL ---> points to the KEYS in urlDatabase
-// urlDatabase[req.params.shortURL] ---> points to the Value of my Keys (longURLS)
-
+//                                            ********** / URL / GET /urls/:shortURL \ **********   
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
+    // req.params.shortURL ---> points to the KEYS in urlDatabase
     shortURL: req.params.shortURL, 
+    // urlDatabase[req.params.shortURL] ---> points to the Value of my Keys (longURLS)
     longURL: urlDatabase[req.params.shortURL],
     // username: req.cookies.username
     "user_id": req.cookies.user_id,
@@ -162,7 +165,8 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-// Redirect to Original longURL
+//                                            ********** / URL / GET /u/:shortURL \ **********   
+//                                                    (redirect to Original LongURL)
 app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL] === undefined) {
     res.status(404);
@@ -172,21 +176,23 @@ app.get("/u/:shortURL", (req, res) => {
   }
 });
 
-// Edit / POST /urls/:shortURL
+
+
+//                                            ********** / EDIT / POST /urls/:shortURL \ **********   
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const newLongURL = req.body.updateURL; // body parser in express //this creates a new value 
+  const newLongURL = req.body.updateURL; 
   //take whatever is put in the form (updateURL) and changes the value of urlDatabase[shortURL] after.
   urlDatabase[shortURL] = newLongURL;
   res.redirect("/urls");
 });
 
-
-// DELETE / POST /urls/:shortURL/delete
+//                                ********** / DELETE / POST /urls/:shortURL/delete \ **********   
+//                                      (after deletion, redirect back to urls_index page (/urls))
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
-// After deletion, redirect back to urls_index page (/urls)
+
   res.redirect('/urls');
 });
 
@@ -212,8 +218,7 @@ app.get("/hello", (req, res) => {
 
 
 
-
-// app listening on Port
+//                                               ********** App Listening on Port **********  
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
