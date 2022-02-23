@@ -20,6 +20,21 @@ const urlDatabase = {
   '9sm5xK': "http://www.google.com"
 };
 
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
+
+
 // Create random Strings
 const generateRandomString = function (length = 6) {
   return Math.random().toString(20).substr(2, length);
@@ -29,17 +44,51 @@ const generateRandomString = function (length = 6) {
 //********/ Register / GET /register
 app.get("/register", (req, res) => {
   const templateVars = {
-    username: req.cookies.username
+    // username: req.cookies.username
+    "user_id": req.cookies.user_id,
+    "users": users
   };
 
   res.render("register_index", templateVars);
 });
 
 
+//********** / Register / POST /register
+
+app.post("/register", (req, res) => {
+  if (req.body.email === '' || req.body.password === '') {
+    res.status(400);
+    res.send('Please fill in the Email and Password');
+  }
+  // no duplicated email addresses.
+  for (const user in users) {
+    if (req.body.email === users[user].email) {
+      res.status(400);
+      res.send("You have already registered with the same email address!");
+    }
+  }
+
+  const newID = generateRandomString();
+  const newUser = {
+    id: newID,
+    email: req.body.email,
+    password: req.body.password
+  };
+
+  users[newID] = newUser;
+  console.log('all users:', users);
+
+  res.cookie("user_id", newID);
+  res.redirect("/urls");
+});
+
+
 app.get("/urls", (req, res) => {
   const templateVars = {
     urls: urlDatabase,
-    username: req.cookies.username
+    // username: req.cookies.username
+    "user_id": req.cookies.user_id,
+    "users": users
   };
   res.render("urls_index", templateVars); // for Express, it searches in the "views" file with .ejs automatically.
 })
@@ -50,7 +99,9 @@ app.get("/urls", (req, res) => {
 //url new page ----> This has ot be defined before /urls/:id. -------> Routes should be ordfered from Most specific to least.
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    username: req.cookies.username
+    // username: req.cookies.username
+    "user_id": req.cookies.user_id,
+    "users": users
   };
   res.render("urls_new", templateVars);
 });
@@ -62,15 +113,18 @@ app.get("/urls/new", (req, res) => {
 app.post("/login", (req, res) => {
   const username = req.body.username;
 
-  res.cookie("username", username); // (name, value)
+  res.cookie("user_id", templateVars); // (name, value)
   res.redirect("/urls");            // redirects back to /urls page
 });
 
 // *******Cookie /POST /logout
 app.post("/logout", (req, res) => {
-  const username = req.body.username;
+const templateVars = {
+  "user_id": req.body.user_id,
+  users: users
+};
 
-  res.clearCookie("username", username);
+  res.clearCookie("user_id", templateVars);
   res.redirect("/urls");
 });
 
@@ -101,7 +155,9 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL, 
     longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies.username
+    // username: req.cookies.username
+    "user_id": req.cookies.user_id,
+    "users": users
   };
   res.render("urls_show", templateVars);
 });
