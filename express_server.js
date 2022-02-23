@@ -26,6 +26,14 @@ const generateRandomString = function (length = 6) {
 };
 
 
+//********/ Register / GET /register
+app.get("/register", (req, res) => {
+  const templateVars = {
+    username: req.cookies.username
+  };
+
+  res.render("register_index", templateVars);
+});
 
 
 app.get("/urls", (req, res) => {
@@ -38,6 +46,7 @@ app.get("/urls", (req, res) => {
 
 
 
+
 //url new page ----> This has ot be defined before /urls/:id. -------> Routes should be ordfered from Most specific to least.
 app.get("/urls/new", (req, res) => {
   const templateVars = {
@@ -46,26 +55,31 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-// Cookie /POST /login
+
+
+
+// ********Cookie /POST /login
 app.post("/login", (req, res) => {
   const username = req.body.username;
-  console.log(req.body);
 
   res.cookie("username", username); // (name, value)
   res.redirect("/urls");            // redirects back to /urls page
 });
 
-
-
-
-
-// Cookie /POST /logout
+// *******Cookie /POST /logout
 app.post("/logout", (req, res) => {
   const username = req.body.username;
 
   res.clearCookie("username", username);
   res.redirect("/urls");
 });
+
+
+
+
+
+
+
 
 
 
@@ -119,6 +133,8 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 // After deletion, redirect back to urls_index page (/urls)
   res.redirect('/urls');
 });
+
+
 
 
 
