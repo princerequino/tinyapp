@@ -114,7 +114,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 
-//                                            ********** / LOGIN ENDPOINT / GET /login \ **********
+//                                            ********** / LOGIN PAGE / GET /login \ **********
 app.get("/login", (req, res) => {
   const templateVars = {
     "user_id": req.cookies.user_id,
@@ -125,7 +125,7 @@ app.get("/login", (req, res) => {
 });
 
 
-//                                            ********** / LOGIN / COOKIE / POST /login \ **********
+//                                            ********** / LOGIN PAGE / COOKIE / POST /login \ **********
 app.post("/login", (req, res) => {
   if (req.body.email === '' || req.body.password === '') {
     res.status(400);
@@ -137,7 +137,7 @@ app.post("/login", (req, res) => {
       return res.redirect("/urls");
     }
   }
-  res.status(403); // CAN'T BE ELSE STATEMENT
+  res.status(403); 
   res.send('Wrong email/password! Try again');
 });
 
