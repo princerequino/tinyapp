@@ -114,6 +114,10 @@ app.post("/logout", (req, res) => {
 //===============================================*************** URLS ***************=================================================
 //===============================================****************************************=================================================
 
+// localhost:8080 leads to /urls page
+app.get("/", (req, res) => {
+  res.redirect("/urls");
+});
 
 
 // List of urls in Database
@@ -230,9 +234,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 // MISC 
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
+
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
