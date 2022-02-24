@@ -4,7 +4,7 @@ const morgan = require("morgan");
 const bcrypt = require('bcryptjs');
 const app = express();
 const PORT = 8080; // default port 8080
-const {getUserByEmail, generateRandomString, urlsForUser, urlDatabase, users} = require("./helper");
+const {getUserByEmail, generateRandomString, urlsForUser, urlDatabase, users} = require("./helpers");
 
 
 //===============================================************* Middlewares **************=================================================
