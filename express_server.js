@@ -1,6 +1,7 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+const morgan = require("morgan");
+const bcrypt = require('bcryptjs');
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -8,8 +9,10 @@ const PORT = 8080; // default port 8080
 
 //===============================================************* Middlewares **************=================================================
 app.use(cookieParser());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
+app.use(morgan('dev'));
 app.set("view engine", "ejs");
+
 
 //===============================================****************************************=================================================
 //===============================================*************** DATABASE ***************=================================================
@@ -30,13 +33,13 @@ const urlDatabase = {
 const users = { 
   "userRandomID": {
     id: "userRandomID", 
-    email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
+    email: "a@a.com", 
+    password: "1234"
   },
  "user2RandomID": {
     id: "user2RandomID", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
+    email: "s@s.com", 
+    password: "qwer"
   }
 }
 
