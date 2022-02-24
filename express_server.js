@@ -1,5 +1,5 @@
 const express = require("express");
-const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const morgan = require("morgan");
 const bcrypt = require('bcryptjs');
 const app = express();
@@ -7,10 +7,14 @@ const PORT = 8080; // default port 8080
 
 
 //===============================================************* Middlewares **************=================================================
-app.use(cookieParser());
+
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.set("view engine", "ejs");
+app.use(cookieSession({
+  name: 'session',
+  keys: ['secret key', 'other secret key']
+}));
 
 
 //===============================================****************************************=================================================
@@ -71,7 +75,7 @@ const urlsForUser = (id) => {
 // Register // Get /register
 app.get("/register", (req, res) => {
   const templateVars = {
-    "user_id": req.cookies.user_id,
+    "user_id": req.session.user_id,
     "users": users
   };
   // console.log('all users:', users);
@@ -103,7 +107,7 @@ app.post("/register", (req, res) => {
   users[newID] = newUser;
   console.log('all users:', users);
 
-  res.cookie("user_id", newID);
+  req.session("user_id", newID);
   res.redirect("/urls");
 });
 
@@ -115,7 +119,7 @@ app.post("/register", (req, res) => {
 // Login render page // GET /login
 app.get("/login", (req, res) => {
   const templateVars = {
-    "user_id": req.cookies.user_id,
+    "user_id": req.session.user_id,
     users: users
   };
 
@@ -124,7 +128,7 @@ app.get("/login", (req, res) => {
 
 
 
-// Login Cookie // POST /login
+// Login CookieSession // POST /login
 app.post("/login", (req, res) => {
   if (req.body.email === '' || req.body.password === '') {
     res.status(400);
@@ -132,7 +136,7 @@ app.post("/login", (req, res) => {
   }
   for (const user in users) {
     if (req.body.email === users[user].email && bcrypt.compareSync(req.body.password, users[user].password)) {
-      res.cookie("user_id", users[user].id);
+      req.session["user_id"] = users[user].id;
       return res.redirect("/urls");
     }
   }
@@ -147,12 +151,9 @@ app.post("/login", (req, res) => {
 
 // Logout Cookie / POST / logout
 app.post("/logout", (req, res) => {
-const templateVars = {
-  "user_id": req.body.user_id,
-  users: users
-};
 
-  res.clearCookie("user_id", templateVars);
+
+  req.session = null;
   res.redirect("/urls");
 });
 
@@ -164,10 +165,10 @@ const templateVars = {
 
 // List of urls in Database
 app.get("/urls", (req, res) => {
-  const userDatabase = urlsForUser(req.cookies.user_id);
+  const userDatabase = urlsForUser(req.session.user_id);
   const templateVars = {
     urls: userDatabase,
-    "user_id": req.cookies.user_id,
+    "user_id": req.session.user_id,
     "users": users
   };
   res.render("urls_index", templateVars);
@@ -176,11 +177,11 @@ app.get("/urls", (req, res) => {
 
 // Create new URL. Redirects to /login if not logged in.
 app.get("/urls/new", (req, res) => {
-  if (req.cookies.user_id === undefined) {
+  if (req.session.user_id === undefined) {
     res.redirect("/login");
   } else {
     const templateVars = {
-      "user_id": req.cookies.user_id,
+      "user_id": req.session.user_id,
       users: users
     };
     res.render("urls_new", templateVars);
@@ -192,14 +193,14 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls", (req, res) => {
   console.log(req.body); 
 
-  if (req.cookies.user_id === undefined) {
+  if (req.session.user_id === undefined) {
     res.status(404);
     res.send("Please login first!");
   } else {
     const newShortURL = generateRandomString();
     urlDatabase[newShortURL] = {
       "longURL": req.body.longURL,
-      "userID": req.cookies.user_id
+      "userID": req.session.user_id
     }; // the value of the new short URL ID/key
 
     res.redirect(`/urls/${newShortURL}`);
@@ -209,7 +210,7 @@ app.post("/urls", (req, res) => {
 
 // parameter based on the database ID
 app.get("/urls/:shortURL", (req, res) => {
-  const userDatabase = urlsForUser(req.cookies.user_id);
+  const userDatabase = urlsForUser(req.session.user_id);
   const userShortUrl = req.params.shortURL;
 
 //validate user with registered url
@@ -220,7 +221,7 @@ app.get("/urls/:shortURL", (req, res) => {
     const templateVars = {
       shortURL: req.params.shortURL,
       longURL: urlDatabase[req.params.shortURL].longURL,
-      "user_id": req.cookies.user_id,
+      "user_id": req.session.user_id,
       users: users
     };
     res.render("urls_show", templateVars);
@@ -245,7 +246,7 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
 
-  if (req.cookies.user_id !== urlDatabase[shortURL].userID) {
+  if (req.session.user_id !== urlDatabase[shortURL].userID) {
     res.status(404);
     res.send('You are not authorized to Edit!');
   }
@@ -263,7 +264,7 @@ app.post("/urls/:shortURL", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
 
-  if (req.cookies.user_id !== urlDatabase[shortURL].userID) {
+  if (req.session.user_id !== urlDatabase[shortURL].userID) {
     res.status(404);
     res.send('You are not authorized to delete!');
   }
