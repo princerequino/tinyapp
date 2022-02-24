@@ -97,7 +97,7 @@ app.post("/register", (req, res) => {
     }
   }
 
-  const newID = generateRandomString();
+  const newID = req.body.email;
   const newUser = {
     id: newID,
     email: req.body.email,
@@ -107,7 +107,6 @@ app.post("/register", (req, res) => {
   users[newID] = newUser;
   console.log('all users:', users);
 
-  req.session("user_id", newID);
   res.redirect("/urls");
 });
 
