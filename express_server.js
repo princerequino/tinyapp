@@ -60,7 +60,6 @@ const urlsForUser = (id) => {
   return userObj;
 };
 
-//Hash Passwords
 
 
 
@@ -132,7 +131,7 @@ app.post("/login", (req, res) => {
     res.send('Please fill in the Email and Password');
   }
   for (const user in users) {
-    if (req.body.email === users[user].email && req.body.password === users[user].password) {
+    if (req.body.email === users[user].email && bcrypt.compareSync(req.body.password, users[user].password)) {
       res.cookie("user_id", users[user].id);
       return res.redirect("/urls");
     }
