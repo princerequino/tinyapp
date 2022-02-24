@@ -6,7 +6,6 @@ const app = express();
 const PORT = 8080; // default port 8080
 
 
-
 //===============================================************* Middlewares **************=================================================
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
@@ -34,14 +33,15 @@ const users = {
   "userRandomID": {
     id: "userRandomID", 
     email: "a@a.com", 
-    password: "1234"
+    password: bcrypt.hashSync("1234", 10)
   },
  "user2RandomID": {
     id: "user2RandomID", 
     email: "s@s.com", 
-    password: "qwer"
+    password: bcrypt.hashSync("qwer", 10)
   }
 }
+console.log(users);
 
 //===============================================**********   Functions   **********=================================================
 const generateRandomString = function (length = 6) {
@@ -60,9 +60,7 @@ const urlsForUser = (id) => {
   return userObj;
 };
 
-
-
-
+//Hash Passwords
 
 
 
@@ -77,6 +75,7 @@ app.get("/register", (req, res) => {
     "user_id": req.cookies.user_id,
     "users": users
   };
+  // console.log('all users:', users);
 
   res.render("register_index", templateVars);
 });
@@ -99,7 +98,7 @@ app.post("/register", (req, res) => {
   const newUser = {
     id: newID,
     email: req.body.email,
-    password: req.body.password
+    password: bcrypt.hashSync(req.body.password, 10)
   };
 
   users[newID] = newUser;
