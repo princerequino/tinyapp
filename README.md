@@ -8,7 +8,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 !["Login-Page"](https://github.com/princerequino/tinyapp/blob/master/docs/Login-Page.JPG)
 
-!["Registration-Page"](https://github.com/princerequino/tinyapp/blob/master/docs/"Registration-Page.JPG)
+!["Registration-Page"](https://github.com/princerequino/tinyapp/blob/master/docs/Registration-Page.JPG)
 
 !["myURL-Page(logged-in)"](https://github.com/princerequino/tinyapp/blob/master/docs/myURL-Page(logged-in).JPG)
 
