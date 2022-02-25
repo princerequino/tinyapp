@@ -27,23 +27,20 @@ app.get("/register", (req, res) => {
   const templateVars = {
     "user": null
   };
-  // console.log('all users:', users);
-
   res.render("register_index", templateVars);
 });
 
-// new User / Post /
+// new User / Post /register
 app.post("/register", (req, res) => {
   if (req.body.email === '' || req.body.password === '') {
-    res.status(400);
-    res.send('Please fill in the Email and Password');
+    res.status(400).send('Please fill in the Email and Password');
   }
 // Email Duplication Check
   if (getUserByEmail(req.body.email, users)) {
     res.send("Email Address has already been registered!");
   }
 
-
+// newID
   const newID = generateRandomString();
   const newUser = {
     id: newID,
@@ -52,8 +49,6 @@ app.post("/register", (req, res) => {
   };
 
   users[newID] = newUser;
-  console.log('all users:', users);
-
   req.session["user_id"] = newID;
   res.redirect("/urls");
 });
@@ -68,7 +63,6 @@ app.get("/login", (req, res) => {
   const templateVars = {
     user: null
   };
-
   res.render("login_index", templateVars);
 });
 
@@ -77,24 +71,19 @@ app.get("/login", (req, res) => {
 // Login CookieSession // POST /login
 app.post("/login", (req, res) => {
   if (req.body.email === '' || req.body.password === '') {
-    res.status(403);
-    res.send('Please fill in the Email and Password');
+    res.status(403).send('Please fill in the Email and Password');
   }
 
  const user = getUserByEmail(req.body.email, users);
  if (!user) {
-   res.status(403);
-   res.send('Email is not registered!')
+   res.status(403).send('Email is not registered!')
  }
    
  if (!bcrypt.compareSync(req.body.password, user.password)) {
-   res.status(403);
-   res.send('Passwords do not match! Please try again.')
+   res.status(403).send('Passwords do not match! Please try again.')
  }
-
  req.session["user_id"] = user.id;
  res.redirect("/urls");
-
 });
 
 //===============================================****************************************=================================================
@@ -104,8 +93,6 @@ app.post("/login", (req, res) => {
 
 // Logout Cookie / POST / logout
 app.post("/logout", (req, res) => {
-
-
   req.session = null;
   res.redirect("/urls");
 });
@@ -147,8 +134,6 @@ app.get("/urls/new", (req, res) => {
 
 // new URL redirect page
 app.post("/urls", (req, res) => {
-  console.log(req.body); 
-
   if (req.session.user_id === undefined) {
     res.status(404);
     res.send("Please login first!");
@@ -157,8 +142,7 @@ app.post("/urls", (req, res) => {
     urlDatabase[newShortURL] = {
       "longURL": req.body.longURL,
       "userID": req.session.user_id
-    }; // the value of the new short URL ID/key
-
+    };
     res.redirect(`/urls/${newShortURL}`);
   }
 });
@@ -171,8 +155,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 //validate user with registered url
   if (userDatabase[userShortUrl] === undefined) {
-    res.status(404);
-    res.send(`<html><body><p><b> Please <a href='/login'>log in</a> with a valid account. If not registered, click <a href='/register'>register</a> here!<b></body></html>`);
+    res.status(404).send(`<html><body><p><b> Please <a href='/login'>log in</a> with a valid account. If not registered, click <a href='/register'>register</a> here!<b></body></html>`);
   } else {
     const templateVars = {
       shortURL: req.params.shortURL,
@@ -188,8 +171,7 @@ app.get("/urls/:shortURL", (req, res) => {
 // redirect to Original LongURL
 app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL] === undefined) {
-    res.status(404);
-    res.send("You have requested a non-existent shortURL!");
+    res.status(404).send("You have requested a non-existent shortURL!  </br><html><body><a href=/>HOME</a></body></html>");
   } else {
     res.redirect(urlDatabase[req.params.shortURL].longURL);
   }
@@ -202,8 +184,7 @@ app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
 
   if (req.session.user_id !== urlDatabase[shortURL].userID) {
-    res.status(404);
-    res.send('You are not authorized to Edit!');
+    res.status(404).send('You are not authorized to Edit!');
   }
 
   const newLongURL = req.body.updateURL; 
@@ -220,8 +201,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
 
   if (req.session.user_id !== urlDatabase[shortURL].userID) {
-    res.status(404);
-    res.send('You are not authorized to delete!');
+    res.status(404).send('You are not authorized to delete!');
   }
   delete urlDatabase[shortURL];
   res.redirect("/urls");
@@ -238,10 +218,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
 app.listen(PORT, () => {
